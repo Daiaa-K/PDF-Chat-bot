@@ -62,3 +62,37 @@ def handle_user_input(user_question):
             st.write("Human: ", message.content)
         else:
             st.write("AI: ", message.content)
+
+if __name__ == '__main__':
+  st.set_page_config("Chat with your pdf using FLAN-T5", page_icon = ":books:")
+  st.header("PDF Chat")
+
+  if "conversation" not in st.session_state:
+    st.session_state.conversation = "None"
+  if "chat_history" not in st.session_state:
+    st.session_state.chat_history = "None"
+
+question = st.text_input("Ask a question about your PDF:")
+if question:
+  handle_user_input(user_question)
+
+with st.sidebar:
+  st.subheader("Your PDF Documents")
+  pdf_docs = st.file_uploader("Upload your PDFs and click Process",accept_multiple_files=True, type = "pdf")
+  if st.button("process")
+    if not pdf_docs:
+      st.error("please upload atleast 1 pdf file")
+  else:
+    with st.spinner("\Processing")
+      # getting text from pdfs
+      txt = ""
+      for pdf in pdf_docs:
+        txt += get_pdf_text(pdf)
+      # getting chunks 
+      chunks = get_text_chunks(txt)
+      # getting vectore score for the pdf chunks
+      vscore = get_vectorescore(chunks)
+      # Creating conversation
+      st.session_state.conversation = get_conversation_chain()
+   st.success("Processing complete! You can now ask questions about your PDFs.")
+
