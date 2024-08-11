@@ -52,7 +52,7 @@ def get_conversation_chain():
         retriever=vectorstore.as_retriever(),
         memory=memory
     )
-    return conversation_chain
+  return conversation_chain
 
 def handle_user_input(user_question):
     response = st.session_state.conversation({'question': user_question})
