@@ -3,7 +3,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chains import ConversationalRetrievalChain
-from langchain.memory import ConversationalBufferMemory
+from langchain.memory import ConversationBufferMemory
 from langchain.llms import HuggingFacePipeline
 from PyPDF2 import PdfReader
 from transformers import T5Tokenizer, T5ForConditionalGeneration, pipeline
@@ -54,7 +54,7 @@ def flan_t5_pipeline():
 # function to get conversation chain
 def get_conversation_chain():
     llm = get_flan_t5_pipeline()
-    memory = ConversationalBufferMemory(memory_key='chat_history', return_messages=True)
+    memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         retriever=vectorstore.as_retriever(),
