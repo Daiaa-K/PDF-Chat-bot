@@ -122,13 +122,13 @@ if __name__ == '__main__':
                     # Get PDF text
                     raw_text = ""
                     for pdf in pdf_docs:
-                        raw_text += process_pdf(pdf)
+                        raw_text += get_pdf_text(pdf)
                     # Get the text chunks
                     text_chunks = get_text_chunks(raw_text)
                     # Create vector store
-                    vectorstore = get_vectorstore(text_chunks)
+                    vstore = get_vectorstore(text_chunks)
                     # Create conversation chain
-                    st.session_state.conversation = get_conversation_chain(vectorstore)
+                    st.session_state.conversation = get_conversation_chain(vstore)
                 st.success("Processing complete! You can now ask questions about your PDFs.")
 
     # Add some custom CSS to auto-scroll to the bottom
