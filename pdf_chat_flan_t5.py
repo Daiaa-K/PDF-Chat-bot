@@ -6,7 +6,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain.llms import HuggingFacePipeline
 from PyPDF2 import PdfReader
-from transformers import T5Tokenizer, T5ForConditionalGeneration, pipeline
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 
 #function to get text from pdf
 def get_pdf_text(pdf):
@@ -33,27 +33,26 @@ def get_vectorstore(chunks):
     vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     return vectorstore
   
-# function to create a FLAN-T5 pipeline
-def get_flan_t5_pipeline():
-    model_id = "google/flan-t5-large"
-    tokenizer = T5Tokenizer.from_pretrained(model_id)
-    model = T5ForConditionalGeneration.from_pretrained(model_id)
+# function to create a BLOOMZ pipeline
+def get_bloomz_pipeline():
+    model_name = "bigscience/bloomz-7b1"  # You can change this to other BLOOMZ models
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(model_name)
     
     pipe = pipeline(
-        "text2text-generation",
+        "text-generation",
         model=model, 
         tokenizer=tokenizer, 
         max_length=512,
         temperature=0.7,
         top_p=0.95
     )
-    
-  # wraping the pipeline with huggingface pipline for compatibility
+    # wrapping the pipeline with a HuggingFacePipline for compatibility
     return HuggingFacePipeline(pipeline=pipe)
   
 # function to get conversation chain
 def get_conversation_chain(vectorstore):
-    llm = get_flan_t5_pipeline()
+    llm = get_bloomz_pipeline()
     memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
@@ -73,8 +72,8 @@ def handle_user_input(user_question):
 
 # Main function
 if __name__ == '__main__':
-    st.set_page_config(page_title="Chat with PDF using FLAN-T5", page_icon=":books:", layout="wide")
-    st.header("Chat with your PDF using FLAN-T5 💬")
+    st.set_page_config(page_title="Chat with PDF using BLOOMZ", page_icon=":books:", layout="wide")
+    st.header("Chat with your PDF💬")
     
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
