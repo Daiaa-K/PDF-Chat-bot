@@ -61,11 +61,20 @@ def get_conversation_chain(vectorstore):
         memory=memory
     )
     return conversation_chain
- 
+
+def handle_user_input(user_question):
+    if st.session_state.conversation is None:
+        st.error("Please upload and process a PDF before asking questions.")
+    else:
+        with st.spinner("Thinking..."):
+            response = st.session_state.conversation({'question': user_question})
+            st.session_state.chat_history.append(("Human", user_question))
+            st.session_state.chat_history.append(("AI", response['answer']))
+
 # Main function
 if __name__ == '__main__':
     st.set_page_config(page_title="Chat with PDF using FLAN-T5", page_icon=":books:", layout="wide")
-    st.header("Chat with your PDF💬")
+    st.header("Chat with your PDF using FLAN-T5 💬")
     
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
@@ -82,13 +91,15 @@ if __name__ == '__main__':
         # User input at the bottom
         user_question = st.text_input("Ask a question about your PDF:")
         if user_question:
-            if st.session_state.conversation is None:
-                st.error("Please upload and process a PDF before asking questions.")
-            else:
-                with st.spinner("Thinking..."):
-                    response = st.session_state.conversation({'question': user_question})
-                    st.session_state.chat_history.append(("Human", user_question))
-                    st.session_state.chat_history.append(("AI", response['answer']))
+            handle_user_input(user_question)
+
+        # Display chat history
+        with chat_container:
+            for sender, message in st.session_state.chat_history:
+                if sender == "Human":
+                    st.markdown(f"**Human:** {message}")
+                else:
+                    st.markdown(f"**AI:** {message}")
 
     with col2:
         # Sidebar for PDF upload
@@ -105,9 +116,9 @@ if __name__ == '__main__':
             else:
                 with st.spinner("Processing PDFs..."):
                     # Get PDF text
-                    raw_text = ""
+                    txt = ""
                     for pdf in pdf_docs:
-                        raw_text += get_pdf_text(pdf)
+                        txt += get_pdf_text(pdf)
                     # Get the text chunks
                     text_chunks = get_text_chunks(raw_text)
                     # Create vector store
@@ -122,6 +133,9 @@ if __name__ == '__main__':
             .element-container {
                 overflow: auto;
                 max-height: 500px;
+            }
+            .stTextInput>div>div>input {
+                background-color: #f0f2f6;
             }
         </style>
     """, unsafe_allow_html=True)
