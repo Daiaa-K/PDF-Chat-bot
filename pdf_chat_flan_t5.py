@@ -79,11 +79,11 @@ if question:
 with st.sidebar:
   st.subheader("Your PDF Documents")
   pdf_docs = st.file_uploader("Upload your PDFs and click Process",accept_multiple_files=True, type = "pdf")
-  if st.button("process")
+  if st.button("process"):
     if not pdf_docs:
       st.error("please upload atleast 1 pdf file")
   else:
-    with st.spinner("\Processing")
+    with st.spinner("\Processing"):
       # getting text from pdfs
       txt = ""
       for pdf in pdf_docs:
