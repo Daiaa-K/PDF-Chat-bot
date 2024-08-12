@@ -8,13 +8,15 @@ from langchain.llms import HuggingFacePipeline
 from PyPDF2 import PDFReader
 from transformers import T5Tokenizer, T5ForConditionalGeneration, pipeline
 
+#function to get text from pdf
 def get_pdf_text(pdf):
   text = ''
   pdf_read = PDFReader(pdf)
   for page in pdf_read.pages:
     text += page.extract_text()
   return text
-
+  
+#function to split text into chunks
 def get_text_chunks(text):
   text_splitter = CharacterTextSplitter(
         separator="\n",
@@ -25,11 +27,13 @@ def get_text_chunks(text):
   chunks = text_splitter.split_text(text)
   return chunks
 
+# function to get vectorscore
 def get_vectorscore(chunks):
   embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
   vectorscore =  FAISS.from_texts(texts = chunks, embedding = embeddings)
   return vectorscore
-
+  
+# function to create a FLAN-T5 pipeline
 def flan_t5_pipeline():
   model_id = "google/flan_t5-large"
   tokenizer = T5Tokenizer.from_pretrained(model_id)
@@ -42,8 +46,10 @@ def flan_t5_pipeline():
     temperature=0.7,
     top_p=0.95
   )
+  # wraping the pipeline with huggingface pipline for compatibility
   return HuggingFacePipline(pipeline = pipe)
-
+  
+# function to get conversation chain
 def get_conversation_chain():
   llm = get_t5_pipeline()
   memory = ConversationalBufferMemory(memory_key='chat_history', return_messages=True)
@@ -54,6 +60,7 @@ def get_conversation_chain():
     )
   return conversation_chain
 
+# function to handle user input
 def handle_user_input(user_question):
     response = st.session_state.conversation({'question': user_question})
     st.session_state.chat_history = response['chat_history']
@@ -63,6 +70,7 @@ def handle_user_input(user_question):
         else:
             st.write("AI: ", message.content)
 
+# Main function
 if __name__ == '__main__':
   st.set_page_config("Chat with your pdf using FLAN-T5", page_icon = ":books:")
   st.header("PDF Chat")
@@ -93,6 +101,6 @@ with st.sidebar:
       # getting vectore score for the pdf chunks
       vscore = get_vectorescore(chunks)
       # Creating conversation
-      st.session_state.conversation = get_conversation_chain()
+      st.session_state.conversation = get_conversation_chain(vscore)
    st.success("Processing complete! You can now ask questions about your PDFs.")
 
