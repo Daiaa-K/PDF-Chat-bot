@@ -10,7 +10,7 @@ from transformers import T5Tokenizer, T5ForConditionalGeneration, pipeline
 
 #function to get text from pdf
 def get_pdf_text(pdf):
-   text = ""
+    text = ""
     pdf_reader = PdfReader(pdf)
     for page in pdf_reader.pages:
         text += page.extract_text()
