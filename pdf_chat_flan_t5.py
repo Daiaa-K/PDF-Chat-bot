@@ -61,7 +61,7 @@ def get_conversation_chain(vectorstore):
         memory=memory
     )
     return conversation_chain
-
+# function to handle user questions and get answer
 def handle_user_input(user_question):
     if st.session_state.conversation is None:
         st.error("Please upload and process a PDF before asking questions.")
@@ -88,7 +88,6 @@ if __name__ == '__main__':
         # Chat interface
         chat_container = st.container()
         
-        # User input at the bottom
         user_question = st.text_input("Ask a question about your PDF:")
         if user_question:
             handle_user_input(user_question)
@@ -97,9 +96,9 @@ if __name__ == '__main__':
         with chat_container:
             for sender, message in st.session_state.chat_history:
                 if sender == "Human":
-                    st.markdown(f"**Human:** {message}")
+                    st.markdown(f"**Question:** {message}")
                 else:
-                    st.markdown(f"**AI:** {message}")
+                    st.markdown(f"Answer: {message}")
 
     with col2:
         # Sidebar for PDF upload
