@@ -74,19 +74,39 @@ def handle_user_input(user_question):
           
 # Main function
 if __name__ == '__main__':
-    st.set_page_config(page_title="Chat with PDF using FLAN-T5", page_icon=":books:")
-    st.header("Chat with your PDF 💬")
+    st.set_page_config(page_title="Chat with PDF using FLAN-T5", page_icon=":books:", layout="wide")
+    st.header("Chat with your PDF💬")
     
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
     if "chat_history" not in st.session_state:
-        st.session_state.chat_history = None
+        st.session_state.chat_history = []
 
-    user_question = st.text_input("Ask a question about your PDF:")
-    if user_question:
-        handle_user_input(user_question)
+    # Create a two-column layout
+    col1, col2 = st.columns([2, 1])
 
-    with st.sidebar:
+    with col1:
+        # Chat interface
+        chat_container = st.container()
+        
+        # User input at the bottom
+        user_question = st.text_input("Ask a question about your PDF:")
+        if user_question:
+            with st.spinner("Thinking..."):
+                response = st.session_state.conversation({'question': user_question})
+                st.session_state.chat_history.append(("Human", user_question))
+                st.session_state.chat_history.append(("AI", response['answer']))
+
+        # Display chat history
+        with chat_container:
+            for sender, message in st.session_state.chat_history:
+                if sender == "Human":
+                    st.write(f"Human: {message}")
+                else:
+                    st.write(f"AI: {message}")
+
+    with col2:
+        # Sidebar for PDF upload
         st.subheader("Your documents")
         pdf_docs = st.file_uploader(
             "Upload your PDFs here and click on 'Process'",
@@ -98,15 +118,26 @@ if __name__ == '__main__':
             if not pdf_docs:
                 st.error("Please upload at least one PDF file before processing.")
             else:
-                with st.spinner("Processing"):
+                with st.spinner("Processing PDFs..."):
                     # Get PDF text
                     raw_text = ""
                     for pdf in pdf_docs:
-                        raw_text += get_pdf_text(pdf)
+                        raw_text += process_pdf(pdf)
                     # Get the text chunks
                     text_chunks = get_text_chunks(raw_text)
                     # Create vector store
-                    vstore = get_vectorstore(text_chunks)
+                    vectorstore = get_vectorstore(text_chunks)
                     # Create conversation chain
-                    st.session_state.conversation = get_conversation_chain(vstore)
+                    st.session_state.conversation = get_conversation_chain(vectorstore)
                 st.success("Processing complete! You can now ask questions about your PDFs.")
+
+    # Add some custom CSS to auto-scroll to the bottom
+    st.markdown("""
+        <style>
+            .element-container {
+                overflow: auto;
+                max-height: 500px;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
