@@ -102,5 +102,5 @@ with st.sidebar:
       vscore = get_vectorescore(chunks)
       # Creating conversation
       st.session_state.conversation = get_conversation_chain(vscore)
-   st.success("Processing complete! You can now ask questions about your PDFs.")
+  st.success("Processing complete! You can now ask questions about your PDFs.")
 
