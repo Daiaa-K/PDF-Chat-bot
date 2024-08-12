@@ -34,7 +34,7 @@ def get_vectorstore(chunks):
     return vectorstore
   
 # function to create a FLAN-T5 pipeline
-def flan_t5_pipeline():
+def get_flan_t5_pipeline():
     model_id = "google/flan-t5-large"
     tokenizer = T5Tokenizer.from_pretrained(model_id)
     model = T5ForConditionalGeneration.from_pretrained(model_id)
