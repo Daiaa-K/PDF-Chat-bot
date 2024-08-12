@@ -120,7 +120,7 @@ if __name__ == '__main__':
                     for pdf in pdf_docs:
                         txt += get_pdf_text(pdf)
                     # Get the text chunks
-                    text_chunks = get_text_chunks(raw_text)
+                    text_chunks = get_text_chunks(txt)
                     # Create vector store
                     vstore = get_vectorstore(text_chunks)
                     # Create conversation chain
