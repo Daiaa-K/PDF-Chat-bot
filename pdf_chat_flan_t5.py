@@ -83,7 +83,7 @@ with st.sidebar:
     if not pdf_docs:
       st.error("please upload atleast 1 pdf file")
   else:
-    with st.spinner("\Processing"):
+    with st.spinner("Processing"):
       # getting text from pdfs
       txt = ""
       for pdf in pdf_docs:
