@@ -52,7 +52,7 @@ def flan_t5_pipeline():
     return HuggingFacePipeline(pipeline=pipe)
   
 # function to get conversation chain
-def get_conversation_chain():
+def get_conversation_chain(vectorstore):
     llm = get_flan_t5_pipeline()
     memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
