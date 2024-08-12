@@ -5,3 +5,4 @@ PyPDF2
 torch
 faiss-cpu
 langchain-community
+sentence-transformers
