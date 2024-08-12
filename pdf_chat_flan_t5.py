@@ -134,9 +134,6 @@ if __name__ == '__main__':
                 overflow: auto;
                 max-height: 500px;
             }
-            .stTextInput>div>div>input {
-                background-color: #f0f2f6;
-            }
         </style>
     """, unsafe_allow_html=True)
 
