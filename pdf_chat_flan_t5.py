@@ -5,13 +5,13 @@ from langchain.vectorstores import FAISS
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationalBufferMemory
 from langchain.llms import HuggingFacePipeline
-from PyPDF2 import PDFReader
+from PyPDF2 import PdfReader
 from transformers import T5Tokenizer, T5ForConditionalGeneration, pipeline
 
 #function to get text from pdf
 def get_pdf_text(pdf):
   text = ''
-  pdf_read = PDFReader(pdf)
+  pdf_read = PdfReader(pdf)
   for page in pdf_read.pages:
     text += page.extract_text()
   return text
