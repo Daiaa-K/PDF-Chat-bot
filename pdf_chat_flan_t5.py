@@ -61,17 +61,7 @@ def get_conversation_chain(vectorstore):
         memory=memory
     )
     return conversation_chain
-
-# function to handle user input
-def handle_user_input(user_question):
-    response = st.session_state.conversation({'question': user_question})
-    st.session_state.chat_history = response['chat_history']
-    for i, message in enumerate(st.session_state.chat_history):
-        if i % 2 == 0:
-            st.write("Human: ", message.content)
-        else:
-            st.write("AI: ", message.content)
-          
+ 
 # Main function
 if __name__ == '__main__':
     st.set_page_config(page_title="Chat with PDF using FLAN-T5", page_icon=":books:", layout="wide")
@@ -92,18 +82,13 @@ if __name__ == '__main__':
         # User input at the bottom
         user_question = st.text_input("Ask a question about your PDF:")
         if user_question:
-            with st.spinner("Thinking..."):
-                response = st.session_state.conversation({'question': user_question})
-                st.session_state.chat_history.append(("Human", user_question))
-                st.session_state.chat_history.append(("AI", response['answer']))
-
-        # Display chat history
-        with chat_container:
-            for sender, message in st.session_state.chat_history:
-                if sender == "Human":
-                    st.write(f"Human: {message}")
-                else:
-                    st.write(f"AI: {message}")
+            if st.session_state.conversation is None:
+                st.error("Please upload and process a PDF before asking questions.")
+            else:
+                with st.spinner("Thinking..."):
+                    response = st.session_state.conversation({'question': user_question})
+                    st.session_state.chat_history.append(("Human", user_question))
+                    st.session_state.chat_history.append(("AI", response['answer']))
 
     with col2:
         # Sidebar for PDF upload
