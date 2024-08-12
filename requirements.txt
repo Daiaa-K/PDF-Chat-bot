@@ -2,3 +2,6 @@ streamlit
 langchain
 transformers
 PyPDF2
+torch
+faiss-cpu
+langchain-community
