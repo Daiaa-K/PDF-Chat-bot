@@ -6,7 +6,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain.llms import HuggingFacePipeline
 from PyPDF2 import PdfReader
-from transformers import T5Tokenizer, T5ForConditionalGeneration, pipeline
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 
 #function to get text from pdf
 def get_pdf_text(pdf):
@@ -34,10 +34,10 @@ def get_vectorstore(chunks):
     return vectorstore
   
 # function to create a LLM pipeline
-def get_flan_t5_pipeline():
-    model_id = "google/flan-t5-xl"
-    tokenizer = T5Tokenizer.from_pretrained(model_id)
-    model = T5ForConditionalGeneration.from_pretrained(model_id)
+def get_llm_pipeline():
+    model_id = "NCSOFT/Llama-3-OffsetBias-8B"
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    model = AutoModelForCausalLM.from_pretrained(model_id)
     
     pipe = pipeline(
         "text2text-generation",
@@ -52,7 +52,7 @@ def get_flan_t5_pipeline():
   
 # function to get conversation chain
 def get_conversation_chain(vectorstore):
-    llm = get_flan_t5_pipeline()
+    llm = get_llm_pipeline()
     memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
