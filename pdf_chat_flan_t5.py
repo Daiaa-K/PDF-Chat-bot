@@ -22,7 +22,8 @@ def get_text_chunks(text):
         separator="\n",
         chunk_size=1000,
         chunk_overlap=200,
-        length_function=len
+        length_function=len,
+        do_sample=True
     )
     chunks = text_splitter.split_text(text)
     return chunks
