@@ -6,7 +6,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain.llms import HuggingFacePipeline
 from PyPDF2 import PdfReader
-from transformers import T5Tokenizer, T5ForConditionalGeneration, pipeline
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 
 #function to get text from pdf
 def get_pdf_text(pdf):
@@ -30,26 +30,24 @@ def get_text_chunks(text):
 
 # function to get vectorstore
 def get_vectorstore(chunks):
-    embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en-v1.5")
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L12-v2")
     vectorstore = FAISS.from_texts(texts=chunks, embedding=embeddings)
     return vectorstore
   
 # function to create a LLM pipeline
 def get_llm_pipeline():
-    model_id = "google/flan-t5-large"
-    tokenizer = T5Tokenizer.from_pretrained(model_id)
-    model = T5ForConditionalGeneration.from_pretrained(model_id)
-    
+    model_id = "meta-llama/Llama-2-7b-chat-hf" 
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    model = AutoModelForCausalLM.from_pretrained(model_id)
     pipe = pipeline(
-        "text2text-generation",
+        "text-generation",
         model=model, 
         tokenizer=tokenizer, 
         max_length=1128,
         temperature=0.7,
         top_p=0.95,
-        do_sample=True
+        repetition_penalty=1.15
     )
-    
     return HuggingFacePipeline(pipeline=pipe)
   
 # function to get conversation chain
