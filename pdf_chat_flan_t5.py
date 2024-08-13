@@ -29,7 +29,7 @@ def get_text_chunks(text):
 
 # function to get vectorstore
 def get_vectorstore(chunks):
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L12-v2")
+    embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en-v1.5")
     vectorstore = FAISS.from_texts(texts=chunks, embedding=embeddings)
     return vectorstore
   
