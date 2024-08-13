@@ -29,8 +29,8 @@ def get_text_chunks(text):
 
 # function to get vectorstore
 def get_vectorstore(chunks):
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L12-v2")
+    vectorstore = FAISS.from_texts(texts=chunks, embedding=embeddings)
     return vectorstore
   
 # function to create a LLM pipeline
