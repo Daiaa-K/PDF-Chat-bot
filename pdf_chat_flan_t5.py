@@ -8,6 +8,8 @@ from langchain.llms import HuggingFacePipeline
 from PyPDF2 import PdfReader
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 
+huggingface_token = st.secrets["Llama_key"]
+
 #function to get text from pdf
 def get_pdf_text(pdf):
     text = ""
@@ -37,8 +39,8 @@ def get_vectorstore(chunks):
 # function to create a LLM pipeline
 def get_llm_pipeline():
     model_id = "meta-llama/Llama-2-7b-chat-hf" 
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
-    model = AutoModelForCausalLM.from_pretrained(model_id)
+    tokenizer = AutoTokenizer.from_pretrained(model_id, token=huggingface_token)
+    model = AutoModelForCausalLM.from_pretrained(model_id, token=huggingface_token)
     pipe = pipeline(
         "text-generation",
         model=model, 
@@ -48,6 +50,7 @@ def get_llm_pipeline():
         top_p=0.95,
         repetition_penalty=1.15
     )
+    
     return HuggingFacePipeline(pipeline=pipe)
   
 # function to get conversation chain
