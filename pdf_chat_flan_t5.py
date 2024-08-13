@@ -22,8 +22,8 @@ def get_text_chunks(text):
         separator="\n",
         chunk_size=1000,
         chunk_overlap=200,
-        length_function=len,
-        do_sample=True
+        length_function=len
+        
     )
     chunks = text_splitter.split_text(text)
     return chunks
@@ -46,7 +46,8 @@ def get_llm_pipeline():
         tokenizer=tokenizer, 
         max_length=1128,
         temperature=0.7,
-        top_p=0.95
+        top_p=0.95,
+        do_sample=True
     )
     
     return HuggingFacePipeline(pipeline=pipe)
