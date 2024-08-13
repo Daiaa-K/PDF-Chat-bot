@@ -40,7 +40,7 @@ def get_vectorstore(chunks):
 def get_llm_pipeline():
     model_id = "meta-llama/Llama-2-7b-chat-hf" 
     tokenizer = AutoTokenizer.from_pretrained(model_id, token=huggingface_token)
-    model = AutoModelForCausalLM.from_pretrained(model_id, token=huggingface_token)
+    model = AutoModelForCausalLM.from_pretrained(model_id, token=huggingface_token, device_map="auto", load_in_8bit=True)
     pipe = pipeline(
         "text-generation",
         model=model, 
