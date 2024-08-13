@@ -34,6 +34,7 @@ def get_vectorstore(chunks):
     return vectorstore
   
 # function to create a BLOOMZ pipeline
+@st.cache_data
 def get_bloomz_pipeline():
     model_name = "bigscience/bloomz-1b7"  # You can change this to other BLOOMZ models
     tokenizer = AutoTokenizer.from_pretrained(model_name)
