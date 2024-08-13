@@ -6,7 +6,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain.llms import HuggingFacePipeline
 from PyPDF2 import PdfReader
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 #function to get text from pdf
 def get_pdf_text(pdf):
@@ -35,9 +35,9 @@ def get_vectorstore(chunks):
   
 # function to create a LLM pipeline
 def get_llm_pipeline():
-    model_id = "NCSOFT/Llama-3-OffsetBias-8B"
+    model_id = "bigscience/mt0-large"
     tokenizer = AutoTokenizer.from_pretrained(model_id)
-    model = AutoModelForCausalLM.from_pretrained(model_id)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_id)
     
     pipe = pipeline(
         "text2text-generation",
