@@ -43,7 +43,7 @@ def get_llm_pipeline():
         "text2text-generation",
         model=model, 
         tokenizer=tokenizer, 
-        max_length=512,
+        max_length=1128,
         temperature=0.7,
         top_p=0.95
     )
