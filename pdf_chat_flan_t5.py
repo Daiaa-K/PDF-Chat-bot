@@ -6,7 +6,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain.llms import HuggingFacePipeline
 from PyPDF2 import PdfReader
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
 
 #function to get text from pdf
 def get_pdf_text(pdf):
