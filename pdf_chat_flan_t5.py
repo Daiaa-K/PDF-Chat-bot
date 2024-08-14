@@ -21,7 +21,7 @@ import logging
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
-huggingface_token = st.secrets["api_key"]
+
 
 # Function to get text from pdf
 def get_pdf_text(pdf):
@@ -50,7 +50,7 @@ def get_vectorstore(chunks):
 
 # Function to create a LLM pipeline using Hugging Face Hub
 def get_llm_pipeline():
-    huggingface_api_token = st.secrets["huggingface_token"]
+    huggingface_api_token = st.secrets["api_key"]
     
     llm = HuggingFaceHub(
         repo_id="google/flan-t5-xl",  # You can change this to a different model if needed
