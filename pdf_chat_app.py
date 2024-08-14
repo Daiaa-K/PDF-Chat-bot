@@ -57,42 +57,42 @@ def process_query(knowledge_base, query):
 
 # Main function
 if __name__ == '__main__':
-  st.set_page_config(page_title="Chat with PDF using FLAN-T5", page_icon=":books:", layout="wide")
-  st.header("Chat with your PDF💬")
+    st.set_page_config(page_title="Chat with PDF using FLAN-T5", page_icon=":books:", layout="wide")
+    st.header("Chat with your PDF💬")
 
-  col1, col2 = st.columns([2, 1])
+    col1, col2 = st.columns([2, 1])
 
-  with col1:
+    with col1:
         # Chat interface
-    chat_container = st.container()
+        chat_container = st.container()
         
-    user_question = st.text_input("Ask a question about your PDF:")
+        user_question = st.text_input("Ask a question about your PDF:")
 
-    if user_question:
-      response = process_query(vstore,user_question)
-    with chat_container:
-      st.write(response)
+        if user_question:
+            response = process_query(vstore,user_question)
+        with chat_container:
+            st.write(response)
     
     with col2:
     # Sidebar for PDF upload
-    st.subheader("Your documents")
-    pdf_docs = st.file_uploader(
-          "Upload your PDFs here and click on 'Process'",
-          accept_multiple_files=True,
-          type="pdf"
-        )
+        st.subheader("Your documents")
+        pdf_docs = st.file_uploader(
+            "Upload your PDFs here and click on 'Process'",
+            accept_multiple_files=True,
+            type="pdf"
+            )
         
-    if st.button("Process"):
-          if not pdf_docs:
-              st.error("Please upload at least one PDF file before processing.")
-          else:
-              with st.spinner("Processing PDFs..."):
-                # Get PDF text
-                txt = ""
-                for pdf in pdf_docs:
-                  txt += get_pdf_text(pdf)
-                  # Get the text chunks
-                text_chunks = get_text_chunks(txt)
-                #get knowledge base
-                vstore = get_vectorstore(text_chunks)
+        if st.button("Process"):
+            if not pdf_docs:
+                st.error("Please upload at least one PDF file before processing.")
+            else:
+                with st.spinner("Processing PDFs..."):
+                    # Get PDF text
+                    txt = ""
+                    for pdf in pdf_docs:
+                        txt += get_pdf_text(pdf)
+                    # Get the text chunks
+                    text_chunks = get_text_chunks(txt)
+                    #get knowledge base
+                    vstore = get_vectorstore(text_chunks)
                 
