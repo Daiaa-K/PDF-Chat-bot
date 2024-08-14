@@ -35,7 +35,9 @@ def chat_with_model(user_input, document_text):
     response = requests.post(HF_API_URL, headers=headers, json=payload)
     
     if response.status_code == 200:
-        return response.json().get('generated_text', 'No response')
+        response_json = response.json()
+        # The exact key might depend on the model, here we assume the response is a list of generated texts
+        return response_json[0]['generated_text'] if isinstance(response_json, list) and len(response_json) > 0 else 'No response'
     else:
         return f"Error: {response.status_code}, {response.text}"
 
