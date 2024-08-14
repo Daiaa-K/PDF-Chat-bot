@@ -4,9 +4,8 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
-from langchain.llms import HuggingFacePipeline
+from langchain.llms import HuggingFaceHub
 from PyPDF2 import PdfReader
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 
 huggingface_token = st.secrets["Llama_key"]
 
@@ -38,20 +37,15 @@ def get_vectorstore(chunks):
   
 # function to create a LLM pipeline
 def get_llm_pipeline():
-    model_id = "meta-llama/Llama-2-7b-chat-hf" 
-    tokenizer = AutoTokenizer.from_pretrained(model_id, token=huggingface_token)
-    model = AutoModelForCausalLM.from_pretrained(model_id, token=huggingface_token, device_map="auto", load_in_8bit=True)
-    pipe = pipeline(
-        "text-generation",
-        model=model, 
-        tokenizer=tokenizer, 
-        max_length=1128,
-        temperature=0.7,
-        top_p=0.95,
-        repetition_penalty=1.15
+    huggingface_api_token = st.secrets["huggingface_token"]
+    
+    llm = HuggingFaceHub(
+        repo_id="meta-llama/Llama-2-7b-chat-hf",  
+        huggingfacehub_api_token = huggingface_token ,
+        model_kwargs={"temperature": 0.7, "max_length": 1128}
     )
     
-    return HuggingFacePipeline(pipeline=pipe)
+    return llm
   
 # function to get conversation chain
 def get_conversation_chain(vectorstore):
