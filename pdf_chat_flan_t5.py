@@ -21,7 +21,7 @@ HF_API_KEY = st.secrets["api_key"]
 def process_pdf(uploaded_file):
     pdf_reader = PyPDF2.PdfReader(uploaded_file)
     text = ""
-    for page_num in range(len(pdf_reader)):
+    for page_num in range(len(pdf_reader.pages)):
         text += pdf_reader.getPage(page_num).extract_text()
     return text
 
