@@ -37,7 +37,6 @@ def get_vectorstore(chunks):
   
 # function to create a LLM pipeline
 def get_llm_pipeline():
-    huggingface_api_token = st.secrets["huggingface_token"]
     
     llm = HuggingFaceHub(
         repo_id="meta-llama/Llama-2-7b-chat-hf",  
