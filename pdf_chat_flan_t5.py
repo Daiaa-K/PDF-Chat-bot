@@ -18,6 +18,13 @@ HF_API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large"
 HF_API_KEY = st.secrets["api_key"]
 
 # Function to process PDF
+def process_pdf(uploaded_file):
+    pdf_reader = PyPDF2.PdfReader(uploaded_file)
+    text = ""
+    for page_num in range(len(pdf_reader.pages)):
+        text += pdf_reader.page[page_num].extract_text()
+    return text
+
 # Function to chat with model
 def chat_with_model(user_input, document_text):
     headers = {"Authorization": f"Bearer {HF_API_KEY}"}
