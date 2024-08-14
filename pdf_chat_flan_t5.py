@@ -21,8 +21,8 @@ def get_pdf_text(pdf):
 def get_text_chunks(text):
     text_splitter = CharacterTextSplitter(
         separator="\n",
-        chunk_size=1000,
-        chunk_overlap=200,
+        chunk_size=500,
+        chunk_overlap=100,
         length_function=len
         
     )
@@ -44,8 +44,9 @@ def get_llm_pipeline():
         huggingfacehub_api_token=huggingface_token,
         model_kwargs={
             "temperature": 0.7,
-            "max_length": 512,
-            "do_sample": True
+            "max_length": 1024,
+            "do_sample": True,
+            "max_new_tokens": 100
         }
     )
     
@@ -57,7 +58,7 @@ def get_conversation_chain(vectorstore):
     memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
-        retriever=vectorstore.as_retriever(),
+        retriever=vectorstore.as_retriever(search_kwargs={"k": 2}),
         memory=memory
     )
     return conversation_chain
