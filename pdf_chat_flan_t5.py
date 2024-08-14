@@ -44,7 +44,7 @@ def get_llm_pipeline():
         huggingfacehub_api_token = huggingface_token,
         model_kwargs={
             "temperature": 0.7,
-            "max_length": 1024,
+            "max_length": 2048,
             "max_new_tokens": 256
         }
     )
