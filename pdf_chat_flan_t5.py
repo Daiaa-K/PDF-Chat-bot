@@ -40,7 +40,7 @@ def get_llm_pipeline():
     huggingface_token = st.secrets["api_key"]
     
     llm = HuggingFaceHub(
-        repo_id = "bigscience/bloomz-3b",
+        repo_id = "openai-community/gpt2",
         huggingfacehub_api_token = huggingface_token,
         model_kwargs={
             "temperature": 0.7,
