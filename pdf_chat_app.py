@@ -28,9 +28,9 @@ def process_text(text):
 
 def get_llm():
     return HuggingFaceHub(
-        repo_id="google/flan-t5-xxl",
+        repo_id="google/flan-t5-xl",
         model_kwargs={"temperature": 0.5, "max_length": 512},
-        huggingfacehub_api_token=os.environ.get("HUGGINGFACEHUB_API_TOKEN")
+        huggingfacehub_api_token=st.secrets["api_key"])
     )
 
 def process_query(knowledge_base, query, llm):
