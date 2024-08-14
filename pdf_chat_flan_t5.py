@@ -6,7 +6,6 @@
 #from langchain.memory import ConversationBufferMemory
 #from langchain.llms import HuggingFaceHub
 #from PyPDF2 import PdfReader
-
 import streamlit as st
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings import HuggingFaceEmbeddings
@@ -31,8 +30,8 @@ def get_pdf_text(pdf):
 def get_text_chunks(text):
     text_splitter = CharacterTextSplitter(
         separator="\n",
-        chunk_size=500,
-        chunk_overlap=50,
+        chunk_size=1000,
+        chunk_overlap=200,
         length_function=len
     )
     chunks = text_splitter.split_text(text)
@@ -40,7 +39,7 @@ def get_text_chunks(text):
 
 # Function to get vectorstore
 def get_vectorstore(chunks):
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
     vectorstore = FAISS.from_texts(texts=chunks, embedding=embeddings)
     return vectorstore
 
@@ -49,23 +48,29 @@ def get_inference_api():
     huggingface_api_token = st.secrets["api_key"]
     return InferenceApi(repo_id="google/flan-t5-large", token=huggingface_api_token)
 
-# Function to get answer from GPT-2
-def get_llm_response(inference_api, prompt, max_length=1024, max_new_tokens=256):
-    response = inference_api(prompt, max_length=max_length, max_new_tokens=max_new_tokens)
+# Function to get answer from FLAN-T5
+def get_flan_t5_response(inference_api, prompt, max_length=512):
+    parameters = {
+        "max_length": max_length,
+        "temperature": 0.7,
+        "top_p": 0.95,
+        "do_sample": True
+    }
+    response = inference_api(inputs=prompt, parameters=parameters)
     return response[0]['generated_text']
 
 # Function to handle user questions and get answer
 def handle_user_input(user_question, vectorstore, inference_api, memory):
     # Retrieve relevant chunks from the vectorstore
-    relevant_docs = vectorstore.similarity_search(user_question, k=2)
+    relevant_docs = vectorstore.similarity_search(user_question, k=3)
     
     # Construct the prompt
     context = "\n".join([doc.page_content for doc in relevant_docs])
-    chat_history = memory.chat_memory.messages
-    prompt = f"Context: {context}\n\nChat History: {chat_history}\n\nHuman: {user_question}\nAI:"
+    chat_history = "\n".join([f"{m.type}: {m.content}" for m in memory.chat_memory.messages[-4:]])  # Last 4 messages
+    prompt = f"Answer the question based on the context and chat history. If you can't answer, say 'I don't know'.\n\nContext: {context}\n\nChat History:\n{chat_history}\n\nQuestion: {user_question}\n\nAnswer:"
     
-    # Get response from GPT-2
-    response = get_llm_response(inference_api, prompt)
+    # Get response from FLAN-T5
+    response = get_flan_t5_response(inference_api, prompt)
     
     # Update memory
     memory.chat_memory.add_user_message(user_question)
@@ -73,8 +78,9 @@ def handle_user_input(user_question, vectorstore, inference_api, memory):
     
     return response
 
+# Main function
 if __name__ == '__main__':
-    st.set_page_config(page_title="Chat with PDF using GPT-2", page_icon=":books:", layout="wide")
+    st.set_page_config(page_title="Chat with PDF using FLAN-T5", page_icon=":books:", layout="wide")
     st.header("Chat with your PDF💬")
     
     if "vectorstore" not in st.session_state:
@@ -144,4 +150,3 @@ if __name__ == '__main__':
             }
         </style>
     """, unsafe_allow_html=True)
-
