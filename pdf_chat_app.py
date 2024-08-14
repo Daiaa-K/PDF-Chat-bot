@@ -1,68 +1,69 @@
+from PyPDF2 import PdfReader
 import streamlit as st
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.memory import ConversationBufferMemory
-from PyPDF2 import PdfReader
-import logging
-import requests
+from langchain.embeddings import HuggingFaceInstructEmbeddings
+from langchain import FAISS
+from langchain.chains.question_answering import load_qa_chain
+from langchain.llms import HuggingFaceHub
 
-#API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-large"
-#headers = {"Authorization": "Bearer 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"}
+import langchain
+langchain.verbose = False
 
-def query_huggingface(payload):
-    response = requests.post(API_URL, headers=headers, json=payload)
-    return response.json()
-  
-# Function to get text from pdf
-def get_pdf_text(pdf):
-    text = ""
-    pdf_reader = PdfReader(pdf)
-    for page in pdf_reader.pages:
-        text += page.extract_text()
-    return text
+# load env variables
+load_dotenv()
 
-# Function to split text into chunks
-def get_text_chunks(text):
+def process_text(text):
     text_splitter = CharacterTextSplitter(
         separator="\n",
         chunk_size=1000,
         chunk_overlap=200,
         length_function=len
     )
-    chunks = text_splitter.split_text(text)
-    return chunks
 
-# Function to get vectorstore
-def get_knowledge_base(chunks):
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
-    knowledge_base = FAISS.from_texts(texts=chunks, embedding=embeddings)
+    chunks = text_splitter.split_text(text)
+    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
+    knowledge_base = FAISS.from_texts(chunks, embeddings)
+
     return knowledge_base
-  
+
 def get_llm():
     return HuggingFaceHub(
-        repo_id="google/flan-t5-xl",
+        repo_id="google/flan-t5-xxl",
         model_kwargs={"temperature": 0.5, "max_length": 512},
-        huggingfacehub_api_token = st.secrets["api_key"]
+        huggingfacehub_api_token=os.environ.get("HUGGINGFACEHUB_API_TOKEN")
     )
 
-def process_query(knowledge_base, query):
-    llm = get_llm()
+def process_query(knowledge_base, query, llm):
     docs = knowledge_base.similarity_search(query)
     chain = load_qa_chain(llm, chain_type="stuff")
     response = chain.invoke(input={"question": query, "input_documents": docs})
     return response["output_text"]
 
-
-
-# Main function
 if __name__ == '__main__':
     st.set_page_config(page_title="Chat with PDF using FLAN-T5", page_icon=":books:", layout="wide")
-    st.header("Chat with your PDF💬")
+    st.title("Chat with your PDF💬")
 
-    col1, col2 = st.columns([2, 1])
+    # Create two columns with different widths
+    col1, col2 = st.columns([1, 2])  # col1 is 1/3 width, col2 is 2/3 width
 
     with col1:
+        st.header("Upload PDF")
+        pdf = st.file_uploader("Upload your PDF File", type="pdf")
+        
+        if pdf is not None:
+            pdf_reader = PdfReader(pdf)
+            text = ""
+            for page in pdf_reader.pages:
+                text += page.extract_text()
+
+            st.success("PDF successfully uploaded and processed!")
+
+            # Only process text and get LLM if not already done
+            if 'knowledge_base' not in st.session_state:
+                st.session_state.knowledge_base = process_text(text)
+                st.session_state.llm = get_llm()
+
+    with col2:
         st.header("Chat")
         
         # Initialize chat history
@@ -84,7 +85,7 @@ if __name__ == '__main__':
 
             # Generate and display assistant response
             if 'knowledge_base' in st.session_state:
-                response = process_query(st.session_state.knowledge_base, prompt)
+                response = process_query(st.session_state.knowledge_base, prompt, st.session_state.llm)
                 # Display assistant response in chat message container
                 with st.chat_message("assistant"):
                     st.markdown(response)
@@ -93,28 +94,3 @@ if __name__ == '__main__':
             else:
                 with st.chat_message("assistant"):
                     st.markdown("Please upload a PDF first.")
-    
-    with col2:
-    # Sidebar for PDF upload
-        st.subheader("Your documents")
-        pdf_docs = st.file_uploader(
-            "Upload your PDFs here and click on 'Process'",
-            accept_multiple_files=True,
-            type="pdf"
-            )
-        
-        if st.button("Process"):
-            if not pdf_docs:
-                st.error("Please upload at least one PDF file before processing.")
-            else:
-                with st.spinner("Processing PDFs..."):
-                    # Get PDF text
-                    txt = ""
-                    for pdf in pdf_docs:
-                        txt += get_pdf_text(pdf)
-                    # Get the text chunks
-                    text_chunks = get_text_chunks(txt)
-                    #get knowledge base
-            if 'knowledge_base' not in st.session_state:
-                st.session_state.knowledge_base = get_knowledge_base(text_chunks)
-                
