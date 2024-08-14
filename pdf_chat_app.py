@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     col1, col2 = st.columns([2, 1])
 
-     with col2:
+    with col1:
         st.header("Chat")
         
         # Initialize chat history
