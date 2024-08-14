@@ -26,8 +26,8 @@ def process_pdf(uploaded_file):
         text += pdf_reader.pages[page_num].extract_text()
     return text
 
+# Function to truncate text to fit model input size
 def truncate_text(text, max_length):
-    # This is a basic truncation; you may need to adjust based on tokenization
     if len(text) > max_length:
         return text[:max_length]
     return text
@@ -48,8 +48,10 @@ def chat_with_model(user_input, document_text):
     
     if response.status_code == 200:
         response_json = response.json()
-        # Extract response assuming it is a single string
-        return response_json[0]['generated_text'] if isinstance(response_json, list) and len(response_json) > 0 else 'No response'
+        # Extract the generated text from the response list
+        if isinstance(response_json, list) and len(response_json) > 0:
+            return response_json[0]  # Assuming the response is a list of strings
+        return 'No response'
     else:
         return f"Error: {response.status_code}, {response.text}"
 
