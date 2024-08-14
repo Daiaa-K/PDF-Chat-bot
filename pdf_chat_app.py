@@ -34,10 +34,10 @@ def get_text_chunks(text):
     return chunks
 
 # Function to get vectorstore
-def get_vectorstore(chunks):
+def get_knowledge_base(chunks):
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
-    vectorstore = FAISS.from_texts(texts=chunks, embedding=embeddings)
-    return vectorstore
+    knowledge_base = FAISS.from_texts(texts=chunks, embedding=embeddings)
+    return knowledge_base
   
 def get_llm():
     return HuggingFaceHub(
@@ -62,16 +62,37 @@ if __name__ == '__main__':
 
     col1, col2 = st.columns([2, 1])
 
-    with col1:
-        # Chat interface
-        chat_container = st.container()
+     with col2:
+        st.header("Chat")
         
-        user_question = st.text_input("Ask a question about your PDF:")
+        # Initialize chat history
+        if 'messages' not in st.session_state:
+            st.session_state.messages = []
 
-        if user_question:
-            response = process_query(vstore,user_question)
-        with chat_container:
-            st.write(response)
+        # Display chat messages from history on app rerun
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
+
+        # Accept user input
+        if prompt := st.chat_input("What would you like to know about the PDF?"):
+            # Add user message to chat history
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            # Display user message in chat message container
+            with st.chat_message("user"):
+                st.markdown(prompt)
+
+            # Generate and display assistant response
+            if 'knowledge_base' in st.session_state:
+                response = process_query(st.session_state.knowledge_base, prompt)
+                # Display assistant response in chat message container
+                with st.chat_message("assistant"):
+                    st.markdown(response)
+                # Add assistant response to chat history
+                st.session_state.messages.append({"role": "assistant", "content": response})
+            else:
+                with st.chat_message("assistant"):
+                    st.markdown("Please upload a PDF first.")
     
     with col2:
     # Sidebar for PDF upload
@@ -94,5 +115,6 @@ if __name__ == '__main__':
                     # Get the text chunks
                     text_chunks = get_text_chunks(txt)
                     #get knowledge base
-                    vstore = get_vectorstore(text_chunks)
+            if 'knowledge_base' not in st.session_state:
+                st.session_state.knowledge_base = get_knowledge_base(text_chunks)
                 
