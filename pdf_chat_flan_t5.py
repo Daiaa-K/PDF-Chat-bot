@@ -1,132 +1,99 @@
+#import streamlit as st
+#from langchain.text_splitter import CharacterTextSplitter
+#from langchain.embeddings import HuggingFaceEmbeddings
+#from langchain.vectorstores import FAISS
+#from langchain.chains import ConversationalRetrievalChain
+#from langchain.memory import ConversationBufferMemory
+#from langchain.llms import HuggingFaceHub
+#from PyPDF2 import PdfReader
+
+
+
 import streamlit as st
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.chains import ConversationalRetrievalChain
-from langchain.memory import ConversationBufferMemory
-from langchain.llms import HuggingFaceHub
-from PyPDF2 import PdfReader
+import PyPDF2
+import faiss
+import numpy as np
+from sentence_transformers import SentenceTransformer
+from huggingface_hub import InferenceApi
 
+huggingface_token = st.secrets["api_key"]
 
+# Function to create and load models (SentenceTransformer)
+def create_llm_models():
+    embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+    flan_api = InferenceApi(repo_id="google/flan-t5-large", token=huggingface_token)
+    return embedding_model, flan_api
 
-#function to get text from pdf
-def get_pdf_text(pdf):
+# Initialize models
+embedding_model, flan_api = create_llm_models()
+
+# Vector store (FAISS)
+index = None
+pdf_texts = []
+
+def extract_text_from_pdf(pdf_file):
+    pdf_reader = PyPDF2.PdfReader(pdf_file)
     text = ""
-    pdf_reader = PdfReader(pdf)
     for page in pdf_reader.pages:
         text += page.extract_text()
     return text
-  
-#function to split text into chunks
-def get_text_chunks(text):
-    text_splitter = CharacterTextSplitter(
-        separator="\n",
-        chunk_size=500,
-        chunk_overlap=100,
-        length_function=len
-        
-    )
-    chunks = text_splitter.split_text(text)
-    return chunks
 
-# function to get vectorstore
-def get_vectorstore(chunks):
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L12-v2")
-    vectorstore = FAISS.from_texts(texts=chunks, embedding=embeddings)
-    return vectorstore
-  
-# function to create a LLM pipeline
-def get_llm_pipeline():
-    huggingface_token = st.secrets["api_key"]
+def create_vector_store(texts):
+    global index
+    # Generate embeddings for each text chunk
+    embeddings = embedding_model.encode(texts)
+    # Create a FAISS index
+    index = faiss.IndexFlatL2(embeddings.shape[1])
+    index.add(embeddings)
+
+def handle_user_input(query, texts):
+    # Search vector store for relevant text chunks
+    query_embedding = embedding_model.encode([query])
+    D, I = index.search(query_embedding, k=5)  # Retrieve top 5 matches
+    relevant_texts = [texts[i] for i in I[0]]
+    combined_text = "\n\n".join(relevant_texts)
     
-    llm = HuggingFaceHub(
-        repo_id="openai-community/gpt2",
-        huggingfacehub_api_token=huggingface_token,
-        model_kwargs={
-            "temperature": 0.7,
-            "max_length": 1024,
-            "do_sample": True,
-            "max_new_tokens": 100
-        }
-    )
+    # Prepare input for Flan-T5
+    input_text = f"Context: {combined_text}\n\nQuestion: {query}\n\nAnswer:"
     
-    return llm
-  
-# function to get conversation chain
-def get_conversation_chain(vectorstore):
-    llm = get_llm_pipeline()
-    memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
-    conversation_chain = ConversationalRetrievalChain.from_llm(
-        llm=llm,
-        retriever=vectorstore.as_retriever(search_kwargs={"k": 2}),
-        memory=memory
-    )
-    return conversation_chain
-# function to handle user questions and get answer
-def handle_user_input(user_question):
-    if st.session_state.conversation is None:
-        st.error("Please upload and process a PDF before asking questions.")
-    else:
-        with st.spinner("Thinking..."):
-            response = st.session_state.conversation({'question': user_question})
-            st.session_state.chat_history.append(("Human", user_question))
-            st.session_state.chat_history.append(("AI", response['answer']))
-
-# Main function
-if __name__ == '__main__':
-    st.set_page_config(page_title="Chat with PDF using BLOOMZ", page_icon=":books:", layout="wide")
-    st.header("Chat with your PDF💬")
+    # Generate a response using Flan-T5 via Hugging Face API
+    response = flan_api(inputs=input_text)
     
-    if "conversation" not in st.session_state:
-        st.session_state.conversation = None
-    if "chat_history" not in st.session_state:
-        st.session_state.chat_history = []
+    return response.get("generated_text", "")
 
-    # Create a two-column layout
-    col1, col2 = st.columns([2, 1])
+# Streamlit app layout
+st.title("Chat with Your PDFs")
 
-    with col1:
-        # Chat interface
-        chat_container = st.container()
-        
-        user_question = st.text_input("Ask a question about your PDF:")
-        if user_question:
-            handle_user_input(user_question)
+# File uploader for multiple files
+uploaded_files = st.file_uploader("Upload PDFs", type="pdf", accept_multiple_files=True)
 
-        # Display chat history
-        with chat_container:
-            for sender, message in st.session_state.chat_history:
-                if sender == "Human":
-                    st.markdown(f"**Question:** {message}")
-                else:
-                    st.markdown(f"Answer: {message}")
+if uploaded_files:
+    process_button = st.button("Process PDFs")
 
-    with col2:
-        # Sidebar for PDF upload
-        st.subheader("Your documents")
-        pdf_docs = st.file_uploader(
-            "Upload your PDFs here and click on 'Process'",
-            accept_multiple_files=True,
-            type="pdf"
-        )
-        
-        if st.button("Process"):
-            if not pdf_docs:
-                st.error("Please upload at least one PDF file before processing.")
-            else:
-                with st.spinner("Processing PDFs..."):
-                    # Get PDF text
-                    txt = ""
-                    for pdf in pdf_docs:
-                        txt += get_pdf_text(pdf)
-                    # Get the text chunks
-                    text_chunks = get_text_chunks(txt)
-                    # Create vector store
-                    vstore = get_vectorstore(text_chunks)
-                    # Create conversation chain
-                    st.session_state.conversation = get_conversation_chain(vstore)
-                st.success("Processing complete! You can now ask questions about your PDFs.")
+    if process_button:
+        try:
+            pdf_texts = []
+            for uploaded_file in uploaded_files:
+                with st.spinner(f"Extracting text from {uploaded_file.name}..."):
+                    text = extract_text_from_pdf(uploaded_file)
+                    pdf_texts.append(text)
 
+            with st.spinner("Generating embeddings and creating vector store..."):
+                create_vector_store(pdf_texts)
+                st.success("PDFs processed and vector store created successfully!")
+
+            user_input = st.text_input("Ask something about the PDFs:")
+            if user_input:
+                with st.spinner("Generating response..."):
+                    response = handle_user_input(user_input, pdf_texts)
+                    st.write("### Response:")
+                    st.write(response)
+
+        except Exception as e:
+            st.error(f"An error occurred: {str(e)}")
+else:
+    st.warning("Please upload PDF files to proceed.")
+    
     # Add some custom CSS to auto-scroll to the bottom
     st.markdown("""
         <style>
