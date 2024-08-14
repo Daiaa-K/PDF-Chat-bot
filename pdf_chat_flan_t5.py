@@ -16,6 +16,7 @@ import requests
 # Configuration for Hugging Face API
 HF_API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large"
 HF_API_KEY = st.secrets["api_key"]
+MAX_INPUT_LENGTH = 1024 
 
 # Function to process PDF
 def process_pdf(uploaded_file):
