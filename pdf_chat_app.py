@@ -30,7 +30,7 @@ def get_llm():
     return HuggingFaceHub(
         repo_id="google/flan-t5-xl",
         model_kwargs={"temperature": 0.5, "max_length": 512},
-        huggingfacehub_api_token=st.secrets["api_key"])
+        huggingfacehub_api_token=st.secrets["api_key"]
     )
 
 def process_query(knowledge_base, query, llm):
