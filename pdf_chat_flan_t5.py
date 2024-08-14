@@ -40,12 +40,12 @@ def get_llm_pipeline():
     huggingface_token = st.secrets["api_key"]
     
     llm = HuggingFaceHub(
-        repo_id = "google/flan-t5-xl",
-        huggingfacehub_api_token = huggingface_token,
+        repo_id="openai-community/gpt2",
+        huggingfacehub_api_token=huggingface_token,
         model_kwargs={
             "temperature": 0.7,
-            "max_length": 1024,
-            "max_new_tokens": 256
+            "max_length": 512,
+            "do_sample": True
         }
     )
     
