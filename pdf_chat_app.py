@@ -6,12 +6,7 @@ from langchain import FAISS
 from langchain.chains.question_answering import load_qa_chain
 from langchain.llms import HuggingFaceHub
 
-import langchain
-langchain.verbose = False
-
 # load env variables
-load_dotenv()
-
 def process_text(text):
     text_splitter = CharacterTextSplitter(
         separator="\n",
