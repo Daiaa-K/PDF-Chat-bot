@@ -7,7 +7,7 @@
 #from langchain.llms import HuggingFaceHub
 #from PyPDF2 import PdfReader
 
-huggingface_token = st.secrets["api_key"]
+
 
 import streamlit as st
 from langchain.text_splitter import CharacterTextSplitter
@@ -21,6 +21,7 @@ import logging
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
+huggingface_token = st.secrets["api_key"]
 
 # Function to get text from pdf
 def get_pdf_text(pdf):
