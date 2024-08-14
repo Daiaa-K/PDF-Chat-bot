@@ -16,12 +16,11 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from huggingface_hub import InferenceApi
 
-huggingface_token = st.secrets["api_key"]
-
 # Function to create and load models (SentenceTransformer)
 def create_llm_models():
+    huggingface_token = st.secrets["api_key"]
     embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-    flan_api = InferenceApi(repo_id="google/flan-t5-large", token=huggingface_token)
+    flan_api = InferenceApi(repo_id="google/flan-t5-large", token = huggingface_token)
     return embedding_model, flan_api
 
 # Initialize models
@@ -93,14 +92,3 @@ if uploaded_files:
             st.error(f"An error occurred: {str(e)}")
 else:
     st.warning("Please upload PDF files to proceed.")
-    
-    # Add some custom CSS to auto-scroll to the bottom
-    st.markdown("""
-        <style>
-            .element-container {
-                overflow: auto;
-                max-height: 500px;
-            }
-        </style>
-    """, unsafe_allow_html=True)
-
