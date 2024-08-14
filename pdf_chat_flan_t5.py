@@ -7,7 +7,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.llms import HuggingFaceHub
 from PyPDF2 import PdfReader
 
-huggingface_token = st.secrets["Llama_key"]
+
 
 #function to get text from pdf
 def get_pdf_text(pdf):
@@ -37,6 +37,8 @@ def get_vectorstore(chunks):
   
 # function to create a LLM pipeline
 def get_llm_pipeline():
+    huggingface_token = st.secrets["api_key"]
+    
     llm = HuggingFaceHub(
         repo_id="meta-llama/Llama-2-7b-chat-hf",
         huggingfacehub_api_token = huggingface_token,
