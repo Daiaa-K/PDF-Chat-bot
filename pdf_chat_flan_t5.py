@@ -40,11 +40,11 @@ def get_llm_pipeline():
     huggingface_token = st.secrets["api_key"]
     
     llm = HuggingFaceHub(
-        repo_id = "meta-llama/Meta-Llama-3.1-8B-Instruct",
+        repo_id = "bigscience/bloomz-3b",
         huggingfacehub_api_token = huggingface_token,
         model_kwargs={
             "temperature": 0.7,
-            "max_length": 2048,
+            "max_length": 1024,
             "max_new_tokens": 256
         }
     )
