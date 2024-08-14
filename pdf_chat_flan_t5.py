@@ -25,13 +25,23 @@ def process_pdf(uploaded_file):
         text += pdf_reader.pages[page_num].extract_text()
     return text
 
+def truncate_text(text, max_length):
+    # This is a basic truncation; you may need to adjust based on tokenization
+    if len(text) > max_length:
+        return text[:max_length]
+    return text
+
 # Function to chat with model
 def chat_with_model(user_input, document_text):
     headers = {"Authorization": f"Bearer {HF_API_KEY}"}
-    # Format input as a single string with context and question
-    payload = {
-        "inputs": f"Context: {document_text}\nQuestion: {user_input}"
-    }
+    
+    # Combine context and question
+    combined_text = f"Context: {document_text}\nQuestion: {user_input}"
+    
+    # Truncate combined text to fit model input size
+    truncated_text = truncate_text(combined_text, MAX_INPUT_LENGTH)
+    
+    payload = {"inputs": truncated_text}
 
     response = requests.post(HF_API_URL, headers=headers, json=payload)
     
