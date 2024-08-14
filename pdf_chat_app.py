@@ -73,7 +73,7 @@ if __name__ == '__main__':
     with chat_container:
       st.write(response)
     
-  with col2:
+    with col2:
     # Sidebar for PDF upload
     st.subheader("Your documents")
     pdf_docs = st.file_uploader(
@@ -82,7 +82,7 @@ if __name__ == '__main__':
           type="pdf"
         )
         
-      if st.button("Process"):
+    if st.button("Process"):
           if not pdf_docs:
               st.error("Please upload at least one PDF file before processing.")
           else:
