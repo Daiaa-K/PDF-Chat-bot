@@ -18,29 +18,20 @@ HF_API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large"
 HF_API_KEY = st.secrets["api_key"]
 
 # Function to process PDF
-def process_pdf(uploaded_file):
-    pdf_reader = PyPDF2.PdfReader(uploaded_file)
-    text = ""
-    for page_num in range(len(pdf_reader.pages)):
-        text += pdf_reader.pages[page_num].extract_text()
-    return text
-
 # Function to chat with model
 def chat_with_model(user_input, document_text):
     headers = {"Authorization": f"Bearer {HF_API_KEY}"}
+    # Format input as a single string with context and question
     payload = {
-        "inputs": {
-            "question": user_input,
-            "context": document_text
-        }
+        "inputs": f"Context: {document_text}\nQuestion: {user_input}"
     }
 
     response = requests.post(HF_API_URL, headers=headers, json=payload)
     
     if response.status_code == 200:
         response_json = response.json()
-        # Ensure the response is in the expected format
-        return response_json.get('answer', 'No response') if isinstance(response_json, dict) else 'No response'
+        # Extract response assuming it is a single string
+        return response_json[0]['generated_text'] if isinstance(response_json, list) and len(response_json) > 0 else 'No response'
     else:
         return f"Error: {response.status_code}, {response.text}"
 
