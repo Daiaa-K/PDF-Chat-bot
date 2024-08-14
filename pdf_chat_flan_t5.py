@@ -40,7 +40,7 @@ def get_llm_pipeline():
     huggingface_token = st.secrets["api_key"]
     
     llm = HuggingFaceHub(
-        repo_id="meta-llama/Llama-2-7b-chat-hf",
+        repo_id="EleutherAI/gpt-neo-1.3B",
         huggingfacehub_api_token = huggingface_token,
         model_kwargs={
             "temperature": 0.7,
