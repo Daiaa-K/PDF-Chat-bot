@@ -1,10 +1,10 @@
-PyPDF2==3.0.1
+PyPDF2
 streamlit
-langchain==0.0.228
-faiss-cpu==1.7.4
-huggingface-hub==0.14.1
-transformers==4.29.2
-sentence-transformers==2.2.2
+langchain
+faiss-cpu
+huggingface-hub
+transformers
+sentence-transformers
 torch
 requests
 InstructorEmbedding
