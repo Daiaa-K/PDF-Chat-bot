@@ -30,7 +30,7 @@ def get_llm():
 def process_query(knowledge_base, query, llm):
     docs = knowledge_base.similarity_search(query)
     chain = load_qa_chain(llm, chain_type="stuff")
-    response = chain.invoke(input={"question": query, "input_documents": docs})
+    response = chain({"input_documents": docs, "question": query}, return_only_outputs=True)
     return response["output_text"]
 
 if __name__ == '__main__':
@@ -45,17 +45,20 @@ if __name__ == '__main__':
         pdf = st.file_uploader("Upload your PDF File", type="pdf")
         
         if pdf is not None:
-            pdf_reader = PdfReader(pdf)
-            text = ""
-            for page in pdf_reader.pages:
-                text += page.extract_text()
+            with st.spinner("Processing...")
+                pdf_reader = PdfReader(pdf)
+                text = ""
+                for page in pdf_reader.pages:
+                    text += page.extract_text()
 
-            st.success("PDF successfully uploaded and processed!")
+            
 
             # Only process text and get LLM if not already done
-            if 'knowledge_base' not in st.session_state:
-                st.session_state.knowledge_base = process_text(text)
-                st.session_state.llm = get_llm()
+                if 'knowledge_base' not in st.session_state:
+                    st.session_state.knowledge_base = process_text(text)
+                    st.session_state.llm = get_llm()
+                
+        st.success("PDF successfully uploaded and processed!")
 
     with col2:
         st.header("Chat")
