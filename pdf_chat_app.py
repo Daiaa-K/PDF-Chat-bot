@@ -9,8 +9,8 @@ from langchain.llms import HuggingFaceHub
 def process_text(text):
     text_splitter = CharacterTextSplitter(
         separator="\n",
-        chunk_size=1000,
-        chunk_overlap=200,
+        chunk_size=500,
+        chunk_overlap=100,
         length_function=len
     )
 
@@ -23,7 +23,7 @@ def process_text(text):
 def get_llm():
     return HuggingFaceHub(
         repo_id="gpt2",
-        model_kwargs={"temperature": 0.5, "max_length": 512},
+        model_kwargs={"temperature": 0.5, "max_length": 1024},
         huggingfacehub_api_token = st.secrets["api_key"]
     )
 
