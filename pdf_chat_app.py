@@ -1,16 +1,10 @@
 from PyPDF2 import PdfReader
 import streamlit as st
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import HuggingFaceInstructEmbeddings
+from langchain.embeddings import HuggingFaceInstructEmbeddings,HuggingFaceEmbeddings
 from langchain import FAISS
 from langchain.chains.question_answering import load_qa_chain
 from langchain.llms import HuggingFaceHub
-
-import langchain
-langchain.verbose = False
-
-# load env variables
-load_dotenv()
 
 def process_text(text):
     text_splitter = CharacterTextSplitter(
@@ -21,7 +15,7 @@ def process_text(text):
     )
 
     chunks = text_splitter.split_text(text)
-    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
     knowledge_base = FAISS.from_texts(chunks, embeddings)
 
     return knowledge_base
