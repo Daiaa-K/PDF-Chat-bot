@@ -22,7 +22,7 @@ def process_text(text):
 
 def get_llm():
     return HuggingFaceHub(
-        repo_id="gpt2",
+        repo_id="gpt2-xl",
         model_kwargs={"temperature": 0.5, "max_length": 1024},
         huggingfacehub_api_token = st.secrets["api_key"]
     )
