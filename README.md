@@ -1,2 +1,2 @@
 # PDF-Chat-bot
-Chat with your pdf app using streamlit and FLAN-T5 model
+Chat with your pdf app using streamlit and gpt2 model
