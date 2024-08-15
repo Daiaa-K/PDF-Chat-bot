@@ -1,12 +1,17 @@
 from PyPDF2 import PdfReader
 import streamlit as st
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import HuggingFaceInstructEmbeddings,HuggingFaceEmbeddings
+from langchain.embeddings import HuggingFaceInstructEmbeddings
 from langchain import FAISS
 from langchain.chains.question_answering import load_qa_chain
 from langchain.llms import HuggingFaceHub
 
+import langchain
+langchain.verbose = False
+
 # load env variables
+load_dotenv()
+
 def process_text(text):
     text_splitter = CharacterTextSplitter(
         separator="\n",
@@ -16,16 +21,16 @@ def process_text(text):
     )
 
     chunks = text_splitter.split_text(text)
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
     knowledge_base = FAISS.from_texts(chunks, embeddings)
 
     return knowledge_base
 
 def get_llm():
     return HuggingFaceHub(
-        repo_id="google/flan-t5-xl",
+        repo_id="google/flan-t5-xxl",
         model_kwargs={"temperature": 0.5, "max_length": 512},
-        huggingfacehub_api_token=st.secrets["api_key"]
+        huggingfacehub_api_token = st.secrets["api_key"]
     )
 
 def process_query(knowledge_base, query, llm):
@@ -80,7 +85,7 @@ if __name__ == '__main__':
 
             # Generate and display assistant response
             if 'knowledge_base' in st.session_state:
-                response = process_query(st.session_state.knowledge_base, prompt)
+                response = process_query(st.session_state.knowledge_base, prompt, st.session_state.llm)
                 # Display assistant response in chat message container
                 with st.chat_message("assistant"):
                     st.markdown(response)
