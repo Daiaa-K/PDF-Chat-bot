@@ -45,7 +45,7 @@ if __name__ == '__main__':
         pdf = st.file_uploader("Upload your PDF File", type="pdf")
         
         if pdf is not None:
-            with st.spinner("Processing...")
+            with st.spinner("Processing..."):
                 pdf_reader = PdfReader(pdf)
                 text = ""
                 for page in pdf_reader.pages:
