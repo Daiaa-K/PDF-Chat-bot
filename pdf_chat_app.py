@@ -59,7 +59,7 @@ if __name__ == '__main__':
                     st.session_state.knowledge_base = process_text(text)
                     st.session_state.llm = get_llm()
                 
-        st.success("PDF successfully uploaded and processed!")
+            st.success("PDF successfully uploaded and processed!")
 
     with col2:
         st.header("Chat")
