@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
             # Generate and display assistant response
             if 'knowledge_base' in st.session_state:
-                response = process_query(st.session_state.knowledge_base, prompt, st.session_state.llm)
+                response = process_query(st.session_state.knowledge_base, prompt)
                 # Display assistant response in chat message container
                 with st.chat_message("assistant"):
                     st.markdown(response)
