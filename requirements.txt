@@ -1,5 +1,5 @@
 PyPDF2==3.0.1
-streamlit==1.22.0
+streamlit
 langchain==0.0.228
 faiss-cpu==1.7.4
 huggingface-hub==0.14.1
