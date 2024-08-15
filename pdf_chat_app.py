@@ -33,7 +33,7 @@ def process_query(knowledge_base, query, llm):
     prompt = f"Context: {context}\n\nQuestion: {query}\n\nAnswer:"
     response = llm(prompt)
     answer_start = response.find("Answer")
-    return response[answer_start:]
+    return response[answer_start:].strip()
     
 if __name__ == '__main__':
     st.set_page_config(page_title="Chat with PDF using FLAN-T5", page_icon=":books:", layout="wide")
