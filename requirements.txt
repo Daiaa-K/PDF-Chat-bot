@@ -1,4 +1,4 @@
-PyPDF2
+ PyPDF2
 streamlit
 langchain
 faiss-cpu
@@ -8,3 +8,4 @@ sentence-transformers
 torch
 requests
 InstructorEmbedding
+langchain-community
