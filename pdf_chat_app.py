@@ -16,7 +16,10 @@ def process_text(text):
     )
 
     chunks = text_splitter.split_text(text)
-    embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
+    embeddings = HuggingFaceInstructEmbeddings(
+        model_name="hkunlp/instructor-xl",
+        model_kwargs={"device": "cpu"}
+    )
     knowledge_base = FAISS.from_texts(chunks, embeddings)
 
     return knowledge_base
