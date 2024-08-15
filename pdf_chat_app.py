@@ -22,17 +22,18 @@ def process_text(text):
 
 def get_llm():
     return HuggingFaceHub(
-        repo_id="google/flan-t5-xxl",
+        repo_id="gpt2",
         model_kwargs={"temperature": 0.5, "max_length": 512},
         huggingfacehub_api_token = st.secrets["api_key"]
     )
 
 def process_query(knowledge_base, query, llm):
     docs = knowledge_base.similarity_search(query)
-    chain = load_qa_chain(llm, chain_type="stuff")
-    response = chain({"input_documents": docs, "question": query}, return_only_outputs=True)
-    return response["output_text"]
-
+    context = "\n".join([doc.page_content for doc in docs])
+    prompt = f"Context: {context}\n\nQuestion: {query}\n\nAnswer:"
+    response = llm(prompt)
+    return response
+    
 if __name__ == '__main__':
     st.set_page_config(page_title="Chat with PDF using FLAN-T5", page_icon=":books:", layout="wide")
     st.title("Chat with your PDF💬")
